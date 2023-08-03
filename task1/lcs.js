@@ -1,0 +1,1 @@
+const L=W=>{if(!W.length)return"";const s=[...W[0]].flatMap((_,i)=>[...W[0]].map((_,j)=>W[0].slice(i,j+1)));return s.sort((a,b)=>b.length-a.length).find(s=>W.every(w=>w.includes(s)))||"";};console.log(L(process.argv.slice(2)));
