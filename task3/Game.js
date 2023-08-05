@@ -30,11 +30,11 @@ class Game {
 
   findWinner(userMove, computerMove) {
     if (this.isWin(userMove, computerMove)) {
-      console.log("You Win!");
+      console.log("You Lose!");
     } else if (userMove === computerMove) {
       console.log("It's a Draw!");
     } else {
-      console.log("You Lose!");
+      console.log("You Win!");
     }
   }
 

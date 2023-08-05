@@ -1,5 +1,6 @@
 const Game = require("./Game");
 const Moves = require("./Moves");
+const Table = require("./Table");
 
 const args = process.argv.slice(2);
 const numMoves = args.length;
@@ -19,15 +20,13 @@ const rl = require("readline").createInterface({
 
 const game = new Game(args);
 const moves = new Moves(args);
-
-game.showHMAC();
-moves.show();
+const table = new Table(args);
 
 const promptUser = () => {
   rl.question("Enter your move: ", (input) => {
     const move = input.trim();
     if (move === "?") {
-      moves.printTable();
+      table.print();
       moves.show();
       promptUser();
     } else if (move === "0") {
@@ -44,4 +43,6 @@ const promptUser = () => {
   });
 };
 
+game.showHMAC();
+moves.show();
 promptUser();
