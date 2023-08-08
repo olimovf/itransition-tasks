@@ -1,16 +1,49 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "../api/axios";
+import { REGISTER_URL } from "../api/urls";
 
 const Register = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const [errMsg, setErrMsg] = useState("");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const resp = await axios.post(REGISTER_URL, formData);
+
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+      });
+
+      setErrMsg("");
+    } catch (err) {
+      setErrMsg(err?.response.data.message);
+    }
+  };
+
   return (
     <div className="container">
       <div className="row justify-content-center align-items-center vh-100">
         <div className="col-12 col-md-5">
           <div className="form-wrapper border rounded p-4 shadow bg-white">
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <h2 className="h3 text-center">Register</h2>
               </div>
+              {errMsg && (
+                <div className="alert alert-danger" role="alert">
+                  {errMsg}
+                </div>
+              )}
               <div className="mb-3">
                 <label htmlFor="name" className="form-label">
                   Name
@@ -20,6 +53,10 @@ const Register = () => {
                   className="form-control"
                   id="name"
                   name="name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -32,6 +69,10 @@ const Register = () => {
                   className="form-control"
                   id="email"
                   name="email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -44,6 +85,10 @@ const Register = () => {
                   className="form-control"
                   id="password"
                   name="password"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   required
                 />
               </div>
