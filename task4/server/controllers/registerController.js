@@ -1,5 +1,6 @@
 const User = require("../model/User");
 const bcrypt = require("bcrypt");
+const { format } = require("date-fns");
 
 const handleNewUser = async (req, res) => {
   const { name, email, password } = req.body;
@@ -16,6 +17,7 @@ const handleNewUser = async (req, res) => {
       name,
       email,
       password: hashedPwd,
+      registrationTime: format(new Date(), "yyyy-MM-dd\tHH:mm:ss"),
     });
 
     res.status(201).json({ success: "User registered successfully" });

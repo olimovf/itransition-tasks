@@ -1,5 +1,6 @@
 const User = require("../model/User");
 const bcrypt = require("bcrypt");
+const { format } = require("date-fns");
 
 const handleLogin = async (req, res) => {
   try {
@@ -14,6 +15,13 @@ const handleLogin = async (req, res) => {
 
     const match = await bcrypt.compare(password, foundUser.password);
     if (!match) return res.status(401).json({ message: "Invalid credentials" });
+
+    foundUser.lastLoginTime = foundUser.lastLoginTime = format(
+      new Date(),
+      "yyyy-MM-dd\tHH:mm:ss"
+    );
+
+    await foundUser.save();
 
     res.status(200).json({ message: "Login successful" });
   } catch (err) {
