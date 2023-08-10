@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import { LOGIN_URL } from "../api/urls";
 import useAuth from "../hooks/useAuth";
@@ -14,14 +14,12 @@ const Login = () => {
   const { setAuth } = useAuth();
 
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const resp = await axios.post(LOGIN_URL, formData);
+      await axios.post(LOGIN_URL, formData);
       setAuth(formData);
 
       setFormData({
@@ -30,13 +28,16 @@ const Login = () => {
       });
       setErrMsg("");
 
-      navigate(from, { replace: true });
+      navigate("/");
     } catch (err) {
       if (!err?.response) {
         setErrMsg("No Server Response");
       } else {
         setErrMsg(err?.response?.data.message);
       }
+      setTimeout(() => {
+        setErrMsg("");
+      }, 3000);
     }
   };
 

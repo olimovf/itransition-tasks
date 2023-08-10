@@ -33,7 +33,14 @@ const Register = () => {
       } else {
         setErrMsg(err?.response?.data.message);
       }
+      setTimeout(() => {
+        setErrMsg("");
+      }, 3000);
     }
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
@@ -68,9 +75,7 @@ const Register = () => {
                     id="name"
                     name="name"
                     value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
+                    onChange={handleChange}
                     required
                   />
                 </div>
@@ -84,9 +89,7 @@ const Register = () => {
                     id="email"
                     name="email"
                     value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
+                    onChange={handleChange}
                     required
                   />
                 </div>
@@ -100,9 +103,7 @@ const Register = () => {
                     id="password"
                     name="password"
                     value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
+                    onChange={handleChange}
                     required
                   />
                 </div>

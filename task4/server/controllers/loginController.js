@@ -13,6 +13,10 @@ const handleLogin = async (req, res) => {
     const foundUser = await User.findOne({ email }).exec();
     if (!foundUser) return res.status(401).json({ message: "Unauthorized" });
 
+    if (foundUser.status === "blocked") {
+      return res.status(403).json({ message: "This email is blocked" });
+    }
+
     const match = await bcrypt.compare(password, foundUser.password);
     if (!match) return res.status(401).json({ message: "Invalid credentials" });
 

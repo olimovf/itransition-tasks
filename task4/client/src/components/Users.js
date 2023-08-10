@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
 import axios from "../api/axios";
 import { USERS_URL } from "../api/urls";
+import { useNavigate } from "react-router-dom";
 
-const Users = () => {
+import { toast } from "react-toastify";
+
+const Users = ({ currUser }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
+  // fetch users
   const fetchUsers = async () => {
     try {
       const resp = await axios.get(USERS_URL);
       setUsers(resp?.data);
     } catch (err) {
-      console.log("Error fetching users:", err);
+      console.log(err.message);
     } finally {
       setLoading(false);
     }
@@ -21,7 +26,7 @@ const Users = () => {
     fetchUsers();
   }, []);
 
-  // select
+  // checkbox
   const [selectAll, setSelectAll] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
 
@@ -50,92 +55,98 @@ const Users = () => {
     }
   }, [selectedUsers]);
 
-  // actions
+  // actions (block, unblock, delete)
   const performAction = async (method, action) => {
+    if (!selectedUsers.length) {
+      toast.warn("Please, select at least one user!");
+      return;
+    }
+
     try {
-      await axios[method](`${USERS_URL}/${action}`, {
-        userIds: selectedUsers,
+      await axios({
+        method,
+        url: `${USERS_URL}/${action}`,
+        data: {
+          userIds: selectedUsers,
+        },
       });
-      // document.querySelector(".toast").classList.add("fade");
-      // document.querySelector(".toast").className =
-      //   "toast fade show border border-2 border-success";
-      // You can show a success message here
+      toast.success(
+        `Selected user(s) ${
+          action + (action.endsWith("e") ? "d" : "ed")
+        } successfully`
+      );
+      setSelectedUsers([]);
     } catch (err) {
-      console.log(err.message);
-      // You can show an error message here
+      toast.error("The action failed, please try again later");
+    }
+  };
+
+  const updateStatus = (status) => {
+    const updatedUsers = users.map((user) =>
+      selectedUsers.includes(user._id) ? { ...user, status } : user
+    );
+    setUsers(updatedUsers);
+    if (status === "blocked") {
+      const currStatus = updatedUsers.find(
+        (user) => user.email === currUser
+      )?.status;
+      if (currStatus === "blocked") {
+        navigate("/login");
+      }
     }
   };
 
   const handleBlockUsers = async () => {
     await performAction("put", "block");
+    updateStatus("blocked");
   };
 
   const handleUnblockUsers = async () => {
     await performAction("put", "unblock");
+    updateStatus("active");
   };
 
   const handleDeleteUsers = async () => {
     await performAction("delete", "delete");
+    const updatedUsers = users.filter(
+      (user) => !selectedUsers.includes(user._id)
+    );
+    setUsers(updatedUsers);
+    const isCurrUserExists = updatedUsers.find(
+      (user) => user.email === currUser
+    );
+    if (!isCurrUserExists) {
+      navigate("/login");
+    }
   };
 
   return (
     <div className="container mt-5">
       <div className="row">
         <div className="col">
-          {/* <div className="toast-container position-fixed bottom-0 end-0 p-3">
-            <div
-              className="toast fade hide border border-2 border-success"
-              role="alert"
-              aria-live="assertive"
-              aria-atomic="true"
-            >
-              <div className="toast-header border-success">
-                <strong className="me-auto">Block User</strong>
-                <button
-                  type="button"
-                  className="btn-close"
-                  data-bs-dismiss="toast"
-                  aria-label="Close"
-                />
-              </div>
-              <div className="toast-body d-flex align-items-center gap-2">
-                <i className="bi bi-check-circle fs-5"></i>
-                <p className="mb-0 fw-700 h6">
-                  Selected user(s) unblocked successfully
-                </p>
-              </div>
-            </div>
-          </div> */}
           <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <h4 className="h4 mb-0">User Management Table</h4>
             <div className="btn-group py-1">
               <button
                 className="btn btn-sm btn-danger"
-                onClick={() => handleBlockUsers()}
+                onClick={handleBlockUsers}
               >
                 Block
               </button>
               <button
                 className="btn btn-sm btn-success"
-                onClick={() => handleUnblockUsers()}
+                onClick={handleUnblockUsers}
               >
                 Unblock
               </button>
               <button
                 className="btn btn-sm btn-danger"
-                onClick={() => handleDeleteUsers()}
+                onClick={handleDeleteUsers}
               >
                 <i className="bi bi-trash"></i>
               </button>
             </div>
           </div>
-          {/* {showModal && (
-            <Modal
-              actionType={actionType}
-              onClose={closeModal}
-              onConfirm={() => performAction(METHOD[actionType], actionType)}
-            />
-          )} */}
           {loading ? (
             <div className="text-center mt-5">
               <div className="spinner-border text-primary" role="status">
@@ -143,7 +154,7 @@ const Users = () => {
               </div>
             </div>
           ) : !users.length ? (
-            <p className="fs-4">No users available</p>
+            <p className="fs-5">No users available</p>
           ) : (
             <div className="table-wrapper">
               <table className="table table-bordered border-primary border border-2">
@@ -179,7 +190,10 @@ const Users = () => {
                 </thead>
                 <tbody>
                   {users.map((user, ind) => (
-                    <tr key={user._id}>
+                    <tr
+                      key={user._id}
+                      className={`${currUser === user.email && "table-active"}`}
+                    >
                       <td className="border border-2 border-primary">
                         <input
                           type="checkbox"
