@@ -12,9 +12,11 @@ const Register = () => {
 
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsSubmitting(true);
 
     try {
       await axios.post(REGISTER_URL, formData);
@@ -36,6 +38,8 @@ const Register = () => {
       setTimeout(() => {
         setErrMsg("");
       }, 3000);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -107,7 +111,18 @@ const Register = () => {
                     required
                   />
                 </div>
-                <button type="submit" className="btn btn-primary w-100">
+                <button
+                  type="submit"
+                  className="btn btn-primary w-100"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting && (
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    />
+                  )}
                   Sign up
                 </button>
                 <div className="mt-2 text-end">

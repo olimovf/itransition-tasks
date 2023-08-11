@@ -11,12 +11,14 @@ const Login = () => {
   });
 
   const [errMsg, setErrMsg] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { setAuth } = useAuth();
 
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsSubmitting(true);
 
     try {
       await axios.post(LOGIN_URL, formData);
@@ -38,6 +40,8 @@ const Login = () => {
       setTimeout(() => {
         setErrMsg("");
       }, 3000);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -87,7 +91,18 @@ const Login = () => {
                   required
                 />
               </div>
-              <button type="submit" className="btn btn-primary w-100">
+              <button
+                type="submit"
+                className="btn btn-primary w-100"
+                disabled={isSubmitting}
+              >
+                {isSubmitting && (
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                )}
                 Login
               </button>
               <div className="mt-2 text-end">
