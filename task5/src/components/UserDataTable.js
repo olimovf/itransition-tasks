@@ -1,125 +1,91 @@
 import { useState } from "react";
+import useDebounce from "../hooks/useDebounce";
 import useGenerateData from "../hooks/useGenerateUser";
-
-// const alphabet = {
-//   ru: "АаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя",
-//   pl: "AaĄąBbCćDdEęĘęFfGgHhIiJjKkLlŁłMmNnŃńOoÓóPpRrSsŚśTtUuWwYyZzŹźŻż",
-//   tr: "AaBbCcÇçDdEeFfGgĞğHhIıİiJjKkLlMmNnOoÖöPpQqRrSsŞşTtUuÜüVvWwXxYyZz",
-// };
-
-const MAX_RANDOM_VALUE = 1e6;
+import { exportToCSV, getRandomValue } from "../utils";
 
 const UserDataTable = () => {
   const [region, setRegion] = useState("ru");
-  const [seed, setSeed] = useState(
-    Math.floor(Math.random() * MAX_RANDOM_VALUE)
-  );
+  const [seed, setSeed] = useState(() => getRandomValue());
   const [errorRate, setErrorRate] = useState(0);
-  const { data, isLoading } = useGenerateData(region, seed);
 
-  const handleRandomClick = () => {
-    const randomValue = Math.floor(Math.random() * MAX_RANDOM_VALUE);
-    setSeed(randomValue);
-  };
-
-  // const introduceErrors = (input, rate) => {
-  //   if (rate <= 0) return input;
-  //   rate = parseInt(rate);
-
-  //   const errors = ["delete", "add", "swap"];
-  //   const modified = [...input];
-
-  //   while (rate--) {
-  //     const selectedError = errors[Math.floor(Math.random() * errors.length)];
-  //     const i = Math.floor(Math.random() * input.length); // random index to introduce error
-
-  //     if (selectedError === "delete") {
-  //       modified.splice(i, 1);
-  //     } else if (selectedError === "add") {
-  //       const randomChar =
-  //         alphabet[region][Math.floor(Math.random() * alphabet[region].length)];
-  //       modified.splice(i, 0, randomChar);
-  //     } else if (selectedError === "swap") {
-  //       if (i < input.length - 1) {
-  //         [modified[i], modified[i + 1]] = [modified[i + 1], modified[i]];
-  //       } else {
-  //         [modified[i], modified[i - 1]] = [modified[i - 1], modified[i]];
-  //       }
-  //     }
-  //   }
-
-  //   return modified.join("");
-  // };
+  const debouncedErrorRate = useDebounce(errorRate, 300);
+  const { data, isLoading } = useGenerateData(region, seed, debouncedErrorRate);
 
   return (
-    <div className="container-xl my-5">
-      <div className="row">
-        <div className="col col-12 col-md-4">
-          <div className="mb-3">
-            <label htmlFor="region" className="form-label">
-              Select Region:
-            </label>
-            <select
-              id="region"
-              className="form-select"
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
+    <div className="container-xl my-4">
+      <div className="row mb-3">
+        <div className="col col-12 col-md-6 col-lg-4 col-xl-2 my-2">
+          <label htmlFor="region" className="form-label">
+            Select Region:
+          </label>
+          <select
+            id="region"
+            className="form-select"
+            value={region}
+            onChange={(e) => setRegion(e.target.value)}
+          >
+            <option value="ru">Russia</option>
+            <option value="pl">Poland</option>
+            <option value="tr">Turkey</option>
+          </select>
+        </div>
+        <div className="col col-12 col-md-6 col-lg-4 col-xl-3 my-2">
+          <label htmlFor="seed" className="form-label">
+            Seed Value:
+          </label>
+          <div className="d-flex gap-2">
+            <button
+              className="form-control btn btn-primary"
+              onClick={() => setSeed(getRandomValue())}
             >
-              <option value="ru">Russia</option>
-              <option value="pl">Poland</option>
-              <option value="tr">Turkey</option>
-            </select>
+              Random Seed
+            </button>
+            <input
+              type="number"
+              className="form-control"
+              id="seed"
+              min={0}
+              value={seed}
+              onChange={(e) => setSeed(e.target.value)}
+            />
           </div>
         </div>
-        <div className="col col-12 col-md-4">
-          <div className="mb-3">
-            <label htmlFor="seed" className="form-label">
-              Seed Value:
-            </label>
-            <div className="d-flex gap-2">
-              <input
-                type="number"
-                className="form-control"
-                id="seed"
-                min={0}
-                value={seed}
-                onChange={(e) => setSeed(e.target.value)}
-              />
-              <button
-                className="form-control btn btn-primary"
-                onClick={handleRandomClick}
-              >
-                Random
-              </button>
-            </div>
+        <div className="col col-12 col-md-9 col-lg-4 col-xl-5 my-2">
+          <label htmlFor="slider" className="form-label">
+            Error range
+          </label>
+          <div className="d-flex align-items-center gap-2">
+            <input
+              type="range"
+              className="form-range"
+              id="slider"
+              min={0}
+              max={10}
+              step={0.01}
+              value={errorRate}
+              onChange={(e) => setErrorRate(Number(e.target.value))}
+            />
+            <input
+              type="number"
+              className="form-control"
+              min={0}
+              max={1000}
+              value={errorRate}
+              onChange={(e) => setErrorRate(Number(e.target.value))}
+            />
           </div>
         </div>
-        <div className="col col-12 col-md-4">
-          <div className="mb-3">
-            <label htmlFor="slider" className="form-label">
-              Error range
-            </label>
-            <div className="d-flex align-items-center gap-2">
-              <input
-                type="range"
-                className="form-range"
-                id="slider"
-                min={0}
-                max={10}
-                step={0.01}
-                value={errorRate}
-                onChange={(e) => setErrorRate(Number(e.target.value))}
-              />
-              <input
-                type="number"
-                className="form-control"
-                min={0}
-                max={1000}
-                value={errorRate}
-                onChange={(e) => setErrorRate(Number(e.target.value))}
-              />
-            </div>
-          </div>
+        <div className="col col-12 col-md-3 col-lg-4 col-xl-2 my-2">
+          <label htmlFor="export-btn" className="form-label">
+            Export
+          </label>
+          <button
+            id="export-btn"
+            className="btn btn-primary w-100"
+            onClick={() => exportToCSV(data)}
+          >
+            Export to CSV
+          </button>
         </div>
       </div>
 
