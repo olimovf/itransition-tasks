@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useDebounce from "../hooks/useDebounce";
 import useGenerateData from "../hooks/useGenerateUser";
 import { exportToCSV, getRandomValue } from "../utils";
@@ -11,11 +11,15 @@ const UserDataTable = () => {
   const debouncedErrorRate = useDebounce(errorRate, 300);
   const { data, isLoading } = useGenerateData(region, seed, debouncedErrorRate);
 
+  useEffect(() => {
+    setErrorRate(0);
+  }, [seed]);
+
   return (
     <div className="container-xl my-4">
       <div className="row mb-3">
         <div className="col col-12 col-md-6 col-lg-4 col-xl-2 my-2">
-          <label htmlFor="region" className="form-label">
+          <label htmlFor="region" className="form-label fw-medium">
             Select Region:
           </label>
           <select
@@ -30,12 +34,12 @@ const UserDataTable = () => {
           </select>
         </div>
         <div className="col col-12 col-md-6 col-lg-4 col-xl-3 my-2">
-          <label htmlFor="seed" className="form-label">
+          <label htmlFor="seed" className="form-label fw-medium">
             Seed Value:
           </label>
           <div className="d-flex gap-2">
             <button
-              className="form-control btn btn-primary"
+              className="btn btn-primary w-100"
               onClick={() => setSeed(getRandomValue())}
             >
               Random Seed
@@ -46,12 +50,12 @@ const UserDataTable = () => {
               id="seed"
               min={0}
               value={seed}
-              onChange={(e) => setSeed(e.target.value)}
+              onChange={(e) => setSeed(Number(e.target.value))}
             />
           </div>
         </div>
         <div className="col col-12 col-md-9 col-lg-4 col-xl-5 my-2">
-          <label htmlFor="slider" className="form-label">
+          <label htmlFor="slider" className="form-label fw-medium">
             Error range
           </label>
           <div className="d-flex align-items-center gap-2">
@@ -61,7 +65,7 @@ const UserDataTable = () => {
               id="slider"
               min={0}
               max={10}
-              step={0.01}
+              step={0.25}
               value={errorRate}
               onChange={(e) => setErrorRate(Number(e.target.value))}
             />
@@ -69,6 +73,7 @@ const UserDataTable = () => {
               type="number"
               className="form-control"
               min={0}
+              step={0.25}
               max={1000}
               value={errorRate}
               onChange={(e) => setErrorRate(Number(e.target.value))}
@@ -76,7 +81,7 @@ const UserDataTable = () => {
           </div>
         </div>
         <div className="col col-12 col-md-3 col-lg-4 col-xl-2 my-2">
-          <label htmlFor="export-btn" className="form-label">
+          <label htmlFor="export-btn" className="form-label fw-medium">
             Export
           </label>
           <button
