@@ -68,7 +68,7 @@ export const generateDataWithErrors = (data, region, errorRate) => {
   const gcd = (a, b) => (!b ? a : gcd(b, a % b));
   const [p, r] = [100 / gcd(100, fracPart), fracPart / gcd(100, fracPart)];
 
-  return data.map(({ randomID, fullName, address, phoneNumber }, ind) => ({
+  return data?.map(({ randomID, fullName, address, phoneNumber }, ind) => ({
     randomID,
     fullName: makeError(region, fullName, intPart + (ind % p < r), "string"),
     address: makeError(region, address, intPart + (ind % p < r), "string"),

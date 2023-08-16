@@ -11,6 +11,10 @@ const UserDataTable = () => {
   const debouncedErrorRate = useDebounce(errorRate, 300);
   const { data, isLoading } = useGenerateData(region, seed, debouncedErrorRate);
 
+  const handleErrorChange = (e) => {
+    setErrorRate(Math.min(Number(e.target.value), Number(e.target.max)));
+  };
+
   useEffect(() => {
     setErrorRate(0);
   }, [seed]);
@@ -56,7 +60,7 @@ const UserDataTable = () => {
         </div>
         <div className="col col-12 col-md-9 col-lg-4 col-xl-5 my-2">
           <label htmlFor="slider" className="form-label fw-medium">
-            Error range
+            Error Range
           </label>
           <div className="d-flex align-items-center gap-2">
             <input
@@ -76,7 +80,7 @@ const UserDataTable = () => {
               step={0.25}
               max={1000}
               value={errorRate}
-              onChange={(e) => setErrorRate(Number(e.target.value))}
+              onChange={handleErrorChange}
             />
           </div>
         </div>
@@ -108,7 +112,7 @@ const UserDataTable = () => {
             </tr>
           </thead>
           <tbody>
-            {data.map((record, index) => (
+            {data?.map((record, index) => (
               <tr key={record.randomID}>
                 <td className="border border-primary border-2">{index + 1}</td>
                 <td className="border border-primary border-2">

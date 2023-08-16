@@ -27,7 +27,12 @@ const useGenerateData = (region, seed, errorRate) => {
       });
     }
 
-    setData((prevData) => [...prevData, ...newData]);
+    setData((prevData) => {
+      if (!prevData) return newData;
+      const combined = [...prevData, ...newData];
+      localStorage.setItem("data", JSON.stringify(combined));
+      return combined;
+    });
     setIsLoading(false);
   };
 
@@ -43,7 +48,11 @@ const useGenerateData = (region, seed, errorRate) => {
   };
 
   useEffect(() => {
-    const newDataWithErrors = generateDataWithErrors(data, region, errorRate);
+    const newDataWithErrors = generateDataWithErrors(
+      JSON.parse(localStorage.getItem("data")),
+      region,
+      errorRate
+    );
     setData(newDataWithErrors);
   }, [errorRate]);
 
@@ -52,6 +61,7 @@ const useGenerateData = (region, seed, errorRate) => {
   }, [page]);
 
   useEffect(() => {
+    setPage(1);
     setData([]);
     generateRandomData(20, seed);
   }, [region, seed]);
