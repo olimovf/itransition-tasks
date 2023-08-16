@@ -1,0 +1,243 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif !important;
+}
+
+body {
+  background-color: #BBCDDC;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+}
+
+.tag-box {
+  max-width: 20rem;
+  width: 100%;
+}
+
+.chat-box {
+  max-width: 30rem;
+  width: 100%;
+}
+
+.chat-header {
+  display: flex;
+  padding: 1.5rem;
+  justify-content: space-between;
+  background-color: #6A96D8;
+}
+
+.chat-title {
+  text-transform: uppercase;
+  font-size: 1rem;
+  color: #fff;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.chat-title span {
+  display: block;
+  width: 7px;
+  height: 7px;
+  background-color: #fff;
+  border-radius: 50%;
+  margin-right: 0.7rem;
+}
+
+/* .btn-close {
+  width: 25px;
+  padding: 4px;
+  cursor: pointer;
+  transition: all 0.3s linear;
+  position: relative;
+}
+
+.btn-close span {
+  margin-bottom: 2px;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background-color: #dedede;
+  transition: all 0.3s linear;
+  transform-origin: center;
+  position: absolute;
+}
+
+.btn-close:hover span {
+  background-color: #fff;
+}
+
+.btn-close span:nth-child(1) {
+  top: 35%;
+  transform: rotate(45deg) translateY(100%);
+}
+
+.btn-close span:nth-child(2) {
+  top: 50%;
+  transform: rotate(-45deg) translateY(-100%);
+} */
+
+.chat-main {
+  padding: 1.5rem;
+  background-color: #fff;
+}
+
+.date {
+  text-align: center;
+  color: #dedede;
+  font-family: "Roboto-Bold";
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.date::after, .date:before {
+  content: "";
+  position: absolute;
+  width: 43%;
+  height: 0.5px;
+  background-color: #dedede;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.date:before {
+  left: 0;
+}
+.date:after {
+  right: 0;
+}
+
+.messages, .tags {
+  list-style: none;
+  height: 25rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-bottom: 0.5px solid #dedede;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.tag {
+  border: 2px solid #6A96D8;
+  padding: 0.25rem 0.5rem 0.25rem 0.75rem;
+  border-radius: 1.5rem;
+  margin: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+}
+
+.tag .delete-btn {
+  border: 2px solid #6A96D8;
+  border-radius: 50%;
+  width: 1.25rem;
+  height: 1.25rem;
+  display: grid;
+  place-items: center;
+}
+
+.msg {
+  padding: 0.6rem;
+  background-color: #E6EDF6;
+  max-width: 70%;
+  border-radius: 0.1rem;
+  font-size: 1rem;
+  position: relative;
+  border-top-left-radius: 0;
+}
+
+.msg:not(:last-child) {
+  margin-bottom: 2.5rem;
+}
+
+.msg::before {
+  content: "";
+  border: 5px solid transparent;
+  border-top-color: #E6EDF6;
+  border-right-color: #E6EDF6;
+  position: absolute;
+  left: -10px;
+  top: 0;
+}
+
+.msg::after {
+  content: attr(data-time);
+  position: absolute;
+  top: -20px;
+  left: 0;
+  color: #aaa;
+  font-size: 0.8rem;
+}
+
+.msg.reverse {
+  align-self: flex-end;
+  background-color: #f3e9e9;
+  border-radius: 0.1rem;
+  border-top-right-radius: 0;
+  position: relative;
+}
+
+.msg.reverse::before {
+  border: 5px solid transparent;
+  border-top-color: #f3e9e9;
+  border-left-color: #f3e9e9;
+  left: 100%;
+}
+
+.msg.reverse::after {
+  position: absolute;
+  left: 100%;
+  transform: translateX(-100%);
+}
+
+.input {
+  display: flex;
+  padding-top: 1rem;
+}
+
+.input input {
+  flex: 1;
+  border: none;
+  padding: 0.2rem 0;
+  outline: none;
+  font-size: 1rem;
+  padding-right: 1rem;
+  font-family: "Roboto-Medium";
+}
+
+.input button {
+  outline: none;
+  border: none;
+  background-color: #fff;
+  color: #6A96D8;
+  font-family: "Roboto-Bold";
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  letter-spacing: 2px;
+}
