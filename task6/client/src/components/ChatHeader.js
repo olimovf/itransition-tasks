@@ -1,8 +1,8 @@
 const ChatHeader = ({ title }) => {
   return (
-    <div className="chat-header">
-      <h2 className="chat-title">
-        <span /> {title}
+    <div className="chat-header d-flex justify-content-between">
+      <h2 className="chat-title mb-0 text-uppercase d-flex align-items-center text-light">
+        <span className="bg-light" /> {title}
       </h2>
     </div>
   );

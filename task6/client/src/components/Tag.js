@@ -1,10 +1,10 @@
 const Tag = ({ tagName }) => {
   return (
-    <li className="tag">
-      <span className="tag-name">{tagName}</span>
-      <span className="delete-btn">
+    <li className="tag d-inline-flex align-items-center gap-1 m-1">
+      <span className="tag-name text-lowercase">{tagName}</span>
+      <span className="delete-btn d-grid place-items-center">
         <svg
-          fill="#6A96D8"
+          fill="var(--tag-color)"
           height="16"
           width="16"
           viewBox="0 0 24 24"
