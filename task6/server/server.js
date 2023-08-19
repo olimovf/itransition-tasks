@@ -5,7 +5,6 @@ const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
 const { Server } = require("socket.io");
 const mongoose = require("mongoose");
-const apiRoutes = require("./routes/api");
 const connectDB = require("./config/dbConn");
 
 const app = express();
@@ -17,7 +16,8 @@ connectDB();
 
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use("/", apiRoutes);
+app.use("/messages", require("./routes/message"));
+app.use("/tags", require("./routes/tag"));
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);

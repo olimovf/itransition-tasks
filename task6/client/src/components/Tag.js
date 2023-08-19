@@ -1,8 +1,11 @@
-const Tag = ({ tagName }) => {
+const Tag = ({ tagName, onDelete }) => {
   return (
     <li className="tag d-inline-flex align-items-center gap-1 m-1">
       <span className="tag-name text-lowercase">{tagName}</span>
-      <span className="delete-btn d-grid place-items-center">
+      <span
+        className="delete-btn d-grid place-items-center"
+        onClick={() => onDelete(tagName)}
+      >
         <svg
           fill="var(--tag-color)"
           height="16"

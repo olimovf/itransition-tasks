@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { MESSAGES_URL } from "./api/urls";
+import { MESSAGES_URL, TAGS_URL } from "./api/urls";
 import axios from "./api/axios";
 import ChatBody from "./components/ChatBody";
 import ChatHeader from "./components/ChatHeader";
@@ -9,23 +9,14 @@ import Tag from "./components/Tag";
 import { socket } from "./socket";
 
 const App = () => {
+  // ======== MESSAGES ======== /
   const [messages, setMessages] = useState([]);
   const [newMessageText, setNewMessageText] = useState("");
   const scrollRef = useRef(null);
-  const [isSending, setIsSending] = useState(false);
+  const [isMessageSending, setIsMessageSending] = useState(false);
 
-  const fetchMessages = async () => {
-    try {
-      const resp = await axios.get(MESSAGES_URL);
-      setMessages(resp.data);
-    } catch (err) {
-      console.error("Error fetching messages:", err);
-    }
-  };
-
+  // socket
   useEffect(() => {
-    fetchMessages();
-
     socket.on("message", (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
@@ -35,9 +26,11 @@ const App = () => {
     };
   }, [socket]);
 
-  const handleSendMessage = async () => {
+  const handleMessageSubmit = async (e) => {
+    e.preventDefault();
+
     try {
-      setIsSending(true);
+      setIsMessageSending(true);
       const resp = await axios.post(MESSAGES_URL, {
         text: newMessageText,
       });
@@ -45,51 +38,136 @@ const App = () => {
       setMessages((prevMessages) => [...prevMessages, resp.data]);
       socket.emit("user-message", resp.data);
 
-      setNewMessageText("");
-
-      scrollRef.current.scrollIntoView({
-        behavior: "smooth",
-      });
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
     } catch (err) {
-      console.error("Error sending message:", err);
+      console.error("Error sending message:", err.message);
     } finally {
-      setIsSending(false);
+      setIsMessageSending(false);
+    }
+
+    setNewMessageText("");
+  };
+
+  // ======== TAGS ======== /
+  const [tags, setTags] = useState([]);
+  const [tagName, setTagName] = useState("");
+  const [isTagAdding, setIsTagAdding] = useState(false);
+  const [suggestedTags, setSuggestedTags] = useState([]);
+
+  const handleTagSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!tags.includes(tagName)) {
+      setTags((prevTags) => [...prevTags, tagName]);
+    }
+    if (!suggestedTags.includes(tagName)) {
+      suggestedTags.push(tagName);
+    }
+
+    setTagName("");
+
+    try {
+      setIsTagAdding(true);
+      await axios.post(TAGS_URL, { name: tagName });
+    } catch (err) {
+      console.error("Error adding tag:", err.message);
+    } finally {
+      setIsTagAdding(false);
     }
   };
+
+  const deleteTag = (tagName) => {
+    const tagsLeft = tags.filter((tag) => tag !== tagName);
+    setTags(tagsLeft);
+  };
+
+  const fetchTags = async () => {
+    try {
+      const resp = await axios.get(TAGS_URL);
+      setSuggestedTags(resp.data?.map((item) => item.name));
+    } catch (err) {
+      console.error("Error fetching tags:", err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchTags();
+  }, []);
+
+  // ===== FETCH MESSAGES BASED ON TAGS ====== //
+  const fetchMessages = async () => {
+    try {
+      const resp = await axios.get(MESSAGES_URL);
+      const data = resp.data;
+      const filteredData = data.filter(
+        (msg) =>
+          msg.tags.some((tag) => tags.includes(tag)) || msg.tags.length === 0
+      );
+      setMessages(filteredData);
+    } catch (err) {
+      console.error("Error fetching messages:", err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchMessages();
+  }, [tags]);
 
   return (
     <div className="container p-4">
       <div className="row">
-        <div className="col-12 col-md-5 p-2">
+        <div className="col col-12 col-md-5 p-2">
           <div className="tag-box">
             <ChatHeader title="My tags" />
             <ChatBody>
               <ul className="tags mb-0">
-                {[
-                  "javascript",
-                  "react",
-                  "angular",
-                  "python",
-                  "c++",
-                  "frontend",
-                ].map((tag, i) => (
-                  <Tag key={i} tagName={tag} />
+                {tags.map((tag, i) => (
+                  <Tag key={i} tagName={tag} onDelete={deleteTag} />
                 ))}
               </ul>
-              <form className="form py-3 px-4 d-flex">
+              <form
+                className="form py-3 px-4 d-flex tag-form"
+                onSubmit={handleTagSubmit}
+              >
+                <div className="autocomplete-box p-3 w-100">
+                  <ul className="autocomplete px-2 m-0 py-2">
+                    {suggestedTags
+                      .filter(
+                        (tag) =>
+                          tagName && tag.startsWith(tagName) && tag !== tagName
+                      )
+                      .slice(0, 5)
+                      .map((tag, ind) => (
+                        <li
+                          className="p-1"
+                          key={ind}
+                          onClick={() => setTagName(tag)}
+                        >
+                          {tag}
+                        </li>
+                      ))}
+                  </ul>
+                </div>
                 <input
                   className="pe-3 py-1"
                   type="text"
-                  placeholder="Enter your tags"
+                  placeholder="Enter your tag"
+                  value={tagName}
+                  onChange={(e) => setTagName(e.target.value.toLowerCase())}
                 />
-                <button className="d-flex align-items-center">
+                <button
+                  className="d-flex align-items-center"
+                  disabled={
+                    !tagName.trim() || tags.includes(tagName) || isTagAdding
+                  }
+                >
                   <i className="bi bi-plus-circle"></i>
                 </button>
               </form>
             </ChatBody>
           </div>
         </div>
-        <div className="col-12 col-md-7 p-2">
+        <div className="col col-12 col-md-7 p-2">
           <div className="chat-box">
             <ChatHeader title="General chat" />
             <ChatBody>
@@ -105,10 +183,7 @@ const App = () => {
               </ChatList>
               <form
                 className="form py-3 px-4 d-flex"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSendMessage();
-                }}
+                onSubmit={handleMessageSubmit}
               >
                 <input
                   className="pe-3 py-1"
@@ -119,7 +194,7 @@ const App = () => {
                 />
                 <button
                   className="d-flex align-items-center"
-                  disabled={!newMessageText.trim() || isSending}
+                  disabled={!newMessageText.trim() || isMessageSending}
                 >
                   <i className="bi bi-send"></i>
                 </button>

@@ -4,15 +4,16 @@ const sendMessage = async (req, res) => {
   try {
     const { text } = req.body;
     const tagsRegex = /#(\w+)/g;
-    const tags = text.match(tagsRegex) || [];
+    let tags = text.match(tagsRegex) || [];
+    tags = tags.map((w) => w.slice(1));
     const messageText = text.replace(tagsRegex, "").trim();
 
     const newMessage = new Message({ text: messageText, tags });
     await newMessage.save();
 
     res.status(201).json(newMessage);
-  } catch (error) {
-    res.status(500).json({ error: "Error sending message" });
+  } catch (err) {
+    res.status(500).json({ message: "Error sending message" });
   }
 };
 
@@ -20,8 +21,8 @@ const fetchMessages = async (req, res) => {
   try {
     const messages = await Message.find().sort("timestamp");
     res.json(messages);
-  } catch (error) {
-    res.status(500).json({ error: "Error fetching messages" });
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching messages" });
   }
 };
 
@@ -30,7 +31,7 @@ const deleteAllMessages = async (req, res) => {
     await Message.deleteMany({});
     res.status(200).json({ message: "All messages deleted" });
   } catch (error) {
-    res.status(500).json({ error: "Error deleting messages" });
+    res.status(500).json({ message: "Error deleting messages" });
   }
 };
 
