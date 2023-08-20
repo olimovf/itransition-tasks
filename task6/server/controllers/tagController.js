@@ -6,7 +6,7 @@ const addTag = async (req, res) => {
 
     const existingTag = await Tag.findOne({ name });
     if (existingTag) {
-      return res.status(409).json({ message: "Tag already exists" });
+      return res.status(200).json({ message: "Tag already exists" });
     }
 
     const newTag = new Tag({ name });
@@ -27,13 +27,13 @@ const getTags = async (req, res) => {
   }
 };
 
-const deleteAllTags = async (req, res) => {
-  try {
-    await Tag.deleteMany({});
-    res.status(200).json({ message: "All tags deleted" });
-  } catch (error) {
-    res.status(500).json({ message: "Error deleting tags" });
-  }
-};
+// const deleteAllTags = async (req, res) => {
+//   try {
+//     await Tag.deleteMany({});
+//     res.status(200).json({ message: "All tags deleted" });
+//   } catch (error) {
+//     res.status(500).json({ message: "Error deleting tags" });
+//   }
+// };
 
-module.exports = { addTag, getTags, deleteAllTags };
+module.exports = { addTag, getTags /*, deleteAllTags */ };

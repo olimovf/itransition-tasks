@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.post("/", messageController.sendMessage);
 router.get("/", messageController.fetchMessages);
-router.delete("/", messageController.deleteAllMessages);
+// router.delete("/", messageController.deleteAllMessages);
 
 module.exports = router;

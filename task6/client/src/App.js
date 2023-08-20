@@ -12,19 +12,14 @@ const App = () => {
   // ======== MESSAGES ======== /
   const [messages, setMessages] = useState([]);
   const [newMessageText, setNewMessageText] = useState("");
-  const scrollRef = useRef(null);
   const [isMessageSending, setIsMessageSending] = useState(false);
+  const scrollRef = useRef(null);
 
-  // socket
-  useEffect(() => {
-    socket.on("message", (newMessage) => {
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [socket]);
+  // ======== TAGS ======== /
+  const [tags, setTags] = useState([]);
+  const [tagName, setTagName] = useState("");
+  const [isTagAdding, setIsTagAdding] = useState(false);
+  const [suggestedTags, setSuggestedTags] = useState([]);
 
   const handleMessageSubmit = async (e) => {
     e.preventDefault();
@@ -46,22 +41,19 @@ const App = () => {
     }
 
     setNewMessageText("");
+    await fetchMessages();
+    await fetchTags();
   };
-
-  // ======== TAGS ======== /
-  const [tags, setTags] = useState([]);
-  const [tagName, setTagName] = useState("");
-  const [isTagAdding, setIsTagAdding] = useState(false);
-  const [suggestedTags, setSuggestedTags] = useState([]);
 
   const handleTagSubmit = async (e) => {
     e.preventDefault();
 
     if (!tags.includes(tagName)) {
-      setTags((prevTags) => [...prevTags, tagName]);
-    }
-    if (!suggestedTags.includes(tagName)) {
-      suggestedTags.push(tagName);
+      setTags((prevTags) => {
+        const combinedTags = [...prevTags, tagName];
+        sessionStorage.setItem("tags", JSON.stringify(combinedTags));
+        return combinedTags;
+      });
     }
 
     setTagName("");
@@ -74,10 +66,13 @@ const App = () => {
     } finally {
       setIsTagAdding(false);
     }
+
+    await fetchTags();
   };
 
   const deleteTag = (tagName) => {
     const tagsLeft = tags.filter((tag) => tag !== tagName);
+    sessionStorage.setItem("tags", JSON.stringify(tagsLeft));
     setTags(tagsLeft);
   };
 
@@ -92,7 +87,25 @@ const App = () => {
 
   useEffect(() => {
     fetchTags();
-  }, []);
+  }, [tags]);
+
+  // socket
+  useEffect(() => {
+    socket.on("message", (newMessage) => {
+      const tags = JSON.parse(sessionStorage.getItem("tags")) || [];
+      if (
+        newMessage.tags.length === 0 ||
+        newMessage.tags.some((t) => tags.includes(t))
+      ) {
+        console.log(newMessage.tags, tags);
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket]);
 
   // ===== FETCH MESSAGES BASED ON TAGS ====== //
   const fetchMessages = async () => {
